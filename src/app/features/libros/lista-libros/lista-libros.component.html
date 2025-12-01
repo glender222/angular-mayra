@@ -1,0 +1,53 @@
+<div class="libros-container">
+    <div class="header">
+        <h1>Libros</h1>
+        <button class="btn-primary" routerLink="/libros/crear">+ Nuevo Libro</button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading">Cargando libros...</div>
+
+    <!-- Error -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+    </div>
+
+    <!-- Tabla de libros -->
+    <div *ngIf="!isLoading && !errorMessage" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Código</th>
+                    <th>Autor</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let libro of libros">
+                    <td>{{ libro.idLibro }}</td>
+                    <td>{{ libro.titulo }}</td>
+                    <td>{{ libro.codigo }}</td>
+                    <td>{{ libro.autor?.nombre }}</td>
+                    <td>S/ {{ libro.precio | number:'1.2-2' }}</td>
+                    <td>{{ libro.stock }}</td>
+                    <td class="actions">
+                        <button class="btn-edit" [routerLink]="['/libros/editar', libro.idLibro]">
+                            Editar
+                        </button>
+                        <button class="btn-delete" (click)="eliminarLibro(libro.idLibro!)">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div *ngIf="libros.length === 0" class="no-data">
+            No hay libros registrados
+        </div>
+    </div>
+</div>

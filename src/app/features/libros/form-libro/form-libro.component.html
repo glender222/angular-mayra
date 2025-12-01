@@ -1,0 +1,81 @@
+<div class="form-container">
+    <div class="card">
+        <h2>{{ isEditMode ? 'Editar Libro' : 'Nuevo Libro' }}</h2>
+
+        <form [formGroup]="libroForm" (ngSubmit)="onSubmit()">
+            <!-- Título -->
+            <div class="form-group">
+                <label>Título</label>
+                <input type="text" formControlName="titulo" />
+            </div>
+
+            <!-- Código -->
+            <div class="form-group">
+                <label>Código</label>
+                <input type="text" formControlName="codigo" />
+            </div>
+
+            <!-- Precio y Stock -->
+            <div class="row">
+                <div class="form-group">
+                    <label>Precio</label>
+                    <input type="number" formControlName="precio" step="0.01" />
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number" formControlName="stock" />
+                </div>
+            </div>
+
+            <!-- Páginas -->
+            <div class="form-group">
+                <label>N° Páginas</label>
+                <input type="number" formControlName="nPaginas" />
+            </div>
+
+            <!-- Selects -->
+            <div class="form-group">
+                <label>Autor</label>
+                <select formControlName="autor">
+                    <option [ngValue]="null">Seleccione un autor</option>
+                    <option *ngFor="let autor of autores" [value]="autor.idAutor">
+                        {{ autor.nombre }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Categoría</label>
+                <select formControlName="categoria">
+                    <option [ngValue]="null">Seleccione una categoría</option>
+                    <option *ngFor="let cat of categorias" [value]="cat.idCategoria">
+                        {{ cat.descripcion }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Editorial</label>
+                <select formControlName="editorial">
+                    <option [ngValue]="null">Seleccione una editorial</option>
+                    <option *ngFor="let ed of editoriales" [value]="ed.idEditorial">
+                        {{ ed.nombre }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Error -->
+            <div *ngIf="errorMessage" class="alert alert-error">
+                {{ errorMessage }}
+            </div>
+
+            <!-- Botones -->
+            <div class="actions">
+                <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+                <button type="submit" class="btn-primary" [disabled]="libroForm.invalid || isLoading">
+                    {{ isLoading ? 'Guardando...' : 'Guardar' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
