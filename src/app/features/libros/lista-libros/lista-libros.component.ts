@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LibroService } from '../../../shared/services/libro.service';
@@ -13,6 +13,7 @@ import { Libro } from '../../../shared/models/libro.model';
 })
 export class ListaLibrosComponent implements OnInit {
     private libroService = inject(LibroService);
+    private cdr = inject(ChangeDetectorRef);
 
     libros: Libro[] = [];
     isLoading: boolean = false;
@@ -31,11 +32,14 @@ export class ListaLibrosComponent implements OnInit {
                 console.log('Respuesta del backend (listarLibros):', data);
                 this.libros = data;
                 this.isLoading = false;
+                console.log('Estado actualizado: isLoading =', this.isLoading, 'Libros =', this.libros.length);
+                this.cdr.detectChanges(); // Forzar actualización de la vista
             },
             error: (error) => {
                 console.error('Error al listar libros:', error);
                 this.errorMessage = error.message;
                 this.isLoading = false;
+                this.cdr.detectChanges();
             }
         });
     }
