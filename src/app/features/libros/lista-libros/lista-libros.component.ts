@@ -28,10 +28,12 @@ export class ListaLibrosComponent implements OnInit {
 
         this.libroService.listarLibros().subscribe({
             next: (data) => {
+                console.log('Respuesta del backend (listarLibros):', data);
                 this.libros = data;
                 this.isLoading = false;
             },
             error: (error) => {
+                console.error('Error al listar libros:', error);
                 this.errorMessage = error.message;
                 this.isLoading = false;
             }
