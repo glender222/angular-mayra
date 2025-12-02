@@ -45,6 +45,19 @@ import { Libro } from '../../../shared/models/libro.model';
             <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
+          </div>
+          <div class="p-6 flex-1 flex flex-col">
+            <div class="flex-1">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">{{ libro.titulo }}</h3>
+              <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <span>{{ libro.autor?.nombre }}</span>
+                <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded text-xs">{{ libro.categoria?.nombre }}</span>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+              <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">S/ {{ libro.precio | number:'1.2-2' }}</span>
+              <button 
+                (click)="addToCart(libro)"
                 class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
