@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
-    selector: 'app-main-layout',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-main-layout',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
       <!-- Sidebar -->
       <aside class="bg-indigo-800 text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300">
@@ -199,16 +199,16 @@ import { AuthService } from '../../core/services/auth.service';
   `
 })
 export class MainLayoutComponent {
-    private authService = inject(AuthService);
-    private router = inject(Router);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-    isMobileMenuOpen = false;
+  isMobileMenuOpen = false;
 
-    toggleMobileMenu() {
-        this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    }
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
 
-    logout() {
-        this.authService.logout();
-    }
+  logout() {
+    this.authService.logout();
+  }
 }
