@@ -6,10 +6,10 @@ import { CategoriaService } from '../../../shared/services/categoria.service';
 import { Categoria } from '../../../shared/models/categoria.model';
 
 @Component({
-    selector: 'app-form-categoria',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
-    template: `
+  selector: 'app-form-categoria',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  template: `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden md:max-w-2xl">
         <div class="md:flex">
@@ -26,7 +26,7 @@ import { Categoria } from '../../../shared/models/categoria.model';
               <!-- Descripción Input -->
               <div>
                 <label for="descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Descripción de la Categoría
+                  Nombre de la Categoría
                 </label>
                 <div class="relative rounded-md shadow-sm">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -36,16 +36,16 @@ import { Categoria } from '../../../shared/models/categoria.model';
                   </div>
                   <input 
                     type="text" 
-                    id="descripcion" 
-                    formControlName="descripcion"
+                    id="nombre" 
+                    formControlName="nombre"
                     class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 transition duration-150 ease-in-out"
                     placeholder="Ej. Novela Histórica"
-                    [class.border-red-300]="categoriaForm.get('descripcion')?.invalid && categoriaForm.get('descripcion')?.touched"
+                    [class.border-red-300]="categoriaForm.get('nombre')?.invalid && categoriaForm.get('nombre')?.touched"
                   >
                 </div>
-                <div *ngIf="categoriaForm.get('descripcion')?.invalid && categoriaForm.get('descripcion')?.touched" class="mt-1 text-sm text-red-600">
-                  <span *ngIf="categoriaForm.get('descripcion')?.errors?.['required']">La descripción es obligatoria.</span>
-                  <span *ngIf="categoriaForm.get('descripcion')?.errors?.['minlength']">La descripción debe tener al menos 3 caracteres.</span>
+                <div *ngIf="categoriaForm.get('nombre')?.invalid && categoriaForm.get('nombre')?.touched" class="mt-1 text-sm text-red-600">
+                  <span *ngIf="categoriaForm.get('nombre')?.errors?.['required']">El nombre es obligatorio.</span>
+                  <span *ngIf="categoriaForm.get('nombre')?.errors?.['minlength']">El nombre debe tener al menos 3 caracteres.</span>
                 </div>
               </div>
 
@@ -92,75 +92,75 @@ import { Categoria } from '../../../shared/models/categoria.model';
     `
 })
 export class FormCategoriaComponent implements OnInit {
-    private fb = inject(FormBuilder);
-    private categoriaService = inject(CategoriaService);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
+  private fb = inject(FormBuilder);
+  private categoriaService = inject(CategoriaService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-    categoriaForm: FormGroup;
-    isEditMode: boolean = false;
-    categoriaId?: number;
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  categoriaForm: FormGroup;
+  isEditMode: boolean = false;
+  categoriaId?: number;
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    constructor() {
-        this.categoriaForm = this.fb.group({
-            descripcion: ['', [Validators.required, Validators.minLength(3)]]
+  constructor() {
+    this.categoriaForm = this.fb.group({
+      nombre: ['', [Validators.required, Validators.minLength(3)]]
+    });
+  }
+
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.isEditMode = true;
+        this.categoriaId = +params['id'];
+        this.cargarCategoria(this.categoriaId);
+      }
+    });
+  }
+
+  cargarCategoria(id: number): void {
+    this.isLoading = true;
+    this.categoriaService.obtenerCategoriaPorId(id).subscribe({
+      next: (categoria) => {
+        this.categoriaForm.patchValue({
+          nombre: categoria.nombre
         });
-    }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'Error al cargar la categoría: ' + error.message;
+        this.isLoading = false;
+      }
+    });
+  }
 
-    ngOnInit(): void {
-        this.route.params.subscribe(params => {
-            if (params['id']) {
-                this.isEditMode = true;
-                this.categoriaId = +params['id'];
-                this.cargarCategoria(this.categoriaId);
-            }
-        });
-    }
+  onSubmit(): void {
+    if (this.categoriaForm.valid) {
+      this.isLoading = true;
+      this.errorMessage = '';
 
-    cargarCategoria(id: number): void {
-        this.isLoading = true;
-        this.categoriaService.obtenerCategoriaPorId(id).subscribe({
-            next: (categoria) => {
-                this.categoriaForm.patchValue({
-                    descripcion: categoria.descripcion
-                });
-                this.isLoading = false;
-            },
-            error: (error) => {
-                this.errorMessage = 'Error al cargar la categoría: ' + error.message;
-                this.isLoading = false;
-            }
-        });
-    }
+      const categoria: Categoria = this.categoriaForm.value;
 
-    onSubmit(): void {
-        if (this.categoriaForm.valid) {
-            this.isLoading = true;
-            this.errorMessage = '';
+      const request = this.isEditMode
+        ? this.categoriaService.actualizarCategoria(this.categoriaId!, categoria)
+        : this.categoriaService.crearCategoria(categoria);
 
-            const categoria: Categoria = this.categoriaForm.value;
-
-            const request = this.isEditMode
-                ? this.categoriaService.actualizarCategoria(this.categoriaId!, categoria)
-                : this.categoriaService.crearCategoria(categoria);
-
-            request.subscribe({
-                next: () => {
-                    this.router.navigate(['/categorias']);
-                },
-                error: (error) => {
-                    this.errorMessage = error.message;
-                    this.isLoading = false;
-                }
-            });
-        } else {
-            this.categoriaForm.markAllAsTouched();
+      request.subscribe({
+        next: () => {
+          this.router.navigate(['/categorias']);
+        },
+        error: (error) => {
+          this.errorMessage = error.message;
+          this.isLoading = false;
         }
+      });
+    } else {
+      this.categoriaForm.markAllAsTouched();
     }
+  }
 
-    cancelar(): void {
-        this.router.navigate(['/categorias']);
-    }
+  cancelar(): void {
+    this.router.navigate(['/categorias']);
+  }
 }
