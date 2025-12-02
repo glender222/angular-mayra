@@ -15,4 +15,5 @@ export interface Venta {
     usuario?: Usuario;
     trabajador?: Trabajador;
     cliente?: Cliente;
+    detalleVentas?: any[]; // Using any[] temporarily or DetalleVenta[] if imported
 }
