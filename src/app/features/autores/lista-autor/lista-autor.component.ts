@@ -1,14 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AutorService } from '../../../shared/services/autor.service';
 import { Autor } from '../../../shared/models/autor.model';
 
 @Component({
-    selector: 'app-lista-autor',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-lista-autor',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <div>
@@ -83,42 +83,46 @@ import { Autor } from '../../../shared/models/autor.model';
     `
 })
 export class ListaAutorComponent implements OnInit {
-    private autorService = inject(AutorService);
+  private autorService = inject(AutorService);
 
-    autores: Autor[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  private cdr = inject(ChangeDetectorRef);
 
-    ngOnInit(): void {
-        this.cargarAutores();
-    }
+  autores: Autor[] = [];
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    cargarAutores(): void {
-        this.isLoading = true;
-        this.errorMessage = '';
-        this.autorService.listarAutores().subscribe({
-            next: (data) => {
-                this.autores = data;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Error al listar autores:', error);
-                this.errorMessage = 'No se pudieron cargar los autores. Por favor, inténtelo de nuevo más tarde.';
-                this.isLoading = false;
-            }
-        });
-    }
+  ngOnInit(): void {
+    this.cargarAutores();
+  }
 
-    eliminarAutor(id: number): void {
-        if (confirm('¿Estás seguro de que deseas eliminar este autor? Esta acción no se puede deshacer.')) {
-            this.autorService.eliminarAutor(id).subscribe({
-                next: () => {
-                    this.cargarAutores();
-                },
-                error: (error) => {
-                    alert('Error al eliminar el autor: ' + error.message);
-                }
-            });
+  cargarAutores(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.autorService.listarAutores().subscribe({
+      next: (data) => {
+        this.autores = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al listar autores:', error);
+        this.errorMessage = 'No se pudieron cargar los autores. Por favor, inténtelo de nuevo más tarde.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  eliminarAutor(id: number): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este autor? Esta acción no se puede deshacer.')) {
+      this.autorService.eliminarAutor(id).subscribe({
+        next: () => {
+          this.cargarAutores();
+        },
+        error: (error) => {
+          alert('Error al eliminar el autor: ' + error.message);
         }
+      });
     }
+  }
 }

@@ -1,14 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PersonaService } from '../../../shared/services/persona.service';
 import { Persona } from '../../../shared/models/persona.model';
 
 @Component({
-    selector: 'app-lista-persona',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-lista-persona',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <div>
@@ -93,42 +93,46 @@ import { Persona } from '../../../shared/models/persona.model';
     `
 })
 export class ListaPersonaComponent implements OnInit {
-    private personaService = inject(PersonaService);
+  private personaService = inject(PersonaService);
 
-    personas: Persona[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  private cdr = inject(ChangeDetectorRef);
 
-    ngOnInit(): void {
-        this.cargarPersonas();
-    }
+  personas: Persona[] = [];
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    cargarPersonas(): void {
-        this.isLoading = true;
-        this.errorMessage = '';
-        this.personaService.listarPersonas().subscribe({
-            next: (data) => {
-                this.personas = data;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Error al listar personas:', error);
-                this.errorMessage = 'No se pudieron cargar las personas. Por favor, inténtelo de nuevo más tarde.';
-                this.isLoading = false;
-            }
-        });
-    }
+  ngOnInit(): void {
+    this.cargarPersonas();
+  }
 
-    eliminarPersona(id: number): void {
-        if (confirm('¿Estás seguro de que deseas eliminar esta persona?')) {
-            this.personaService.eliminarPersona(id).subscribe({
-                next: () => {
-                    this.cargarPersonas();
-                },
-                error: (error) => {
-                    alert('Error al eliminar la persona: ' + error.message);
-                }
-            });
+  cargarPersonas(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.personaService.listarPersonas().subscribe({
+      next: (data) => {
+        this.personas = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al listar personas:', error);
+        this.errorMessage = 'No se pudieron cargar las personas. Por favor, inténtelo de nuevo más tarde.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  eliminarPersona(id: number): void {
+    if (confirm('¿Estás seguro de que deseas eliminar esta persona?')) {
+      this.personaService.eliminarPersona(id).subscribe({
+        next: () => {
+          this.cargarPersonas();
+        },
+        error: (error) => {
+          alert('Error al eliminar la persona: ' + error.message);
         }
+      });
     }
+  }
 }

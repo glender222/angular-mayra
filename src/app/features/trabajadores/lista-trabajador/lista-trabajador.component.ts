@@ -1,14 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TrabajadorService } from '../../../shared/services/trabajador.service';
 import { Trabajador } from '../../../shared/models/trabajador.model';
 
 @Component({
-    selector: 'app-lista-trabajador',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-lista-trabajador',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <div>
@@ -93,42 +93,46 @@ import { Trabajador } from '../../../shared/models/trabajador.model';
     `
 })
 export class ListaTrabajadorComponent implements OnInit {
-    private trabajadorService = inject(TrabajadorService);
+  private trabajadorService = inject(TrabajadorService);
 
-    trabajadores: Trabajador[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  private cdr = inject(ChangeDetectorRef);
 
-    ngOnInit(): void {
-        this.cargarTrabajadores();
-    }
+  trabajadores: Trabajador[] = [];
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    cargarTrabajadores(): void {
-        this.isLoading = true;
-        this.errorMessage = '';
-        this.trabajadorService.listarTrabajadores().subscribe({
-            next: (data) => {
-                this.trabajadores = data;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Error al listar trabajadores:', error);
-                this.errorMessage = 'No se pudieron cargar los trabajadores. Por favor, inténtelo de nuevo más tarde.';
-                this.isLoading = false;
-            }
-        });
-    }
+  ngOnInit(): void {
+    this.cargarTrabajadores();
+  }
 
-    eliminarTrabajador(id: number): void {
-        if (confirm('¿Estás seguro de que deseas eliminar este trabajador?')) {
-            this.trabajadorService.eliminarTrabajador(id).subscribe({
-                next: () => {
-                    this.cargarTrabajadores();
-                },
-                error: (error) => {
-                    alert('Error al eliminar el trabajador: ' + error.message);
-                }
-            });
+  cargarTrabajadores(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.trabajadorService.listarTrabajadores().subscribe({
+      next: (data) => {
+        this.trabajadores = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al listar trabajadores:', error);
+        this.errorMessage = 'No se pudieron cargar los trabajadores. Por favor, inténtelo de nuevo más tarde.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  eliminarTrabajador(id: number): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este trabajador?')) {
+      this.trabajadorService.eliminarTrabajador(id).subscribe({
+        next: () => {
+          this.cargarTrabajadores();
+        },
+        error: (error) => {
+          alert('Error al eliminar el trabajador: ' + error.message);
         }
+      });
     }
+  }
 }

@@ -1,14 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { EditorialService } from '../../../shared/services/editorial.service';
 import { Editorial } from '../../../shared/models/editorial.model';
 
 @Component({
-    selector: 'app-lista-editorial',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-lista-editorial',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <div>
@@ -83,42 +83,46 @@ import { Editorial } from '../../../shared/models/editorial.model';
     `
 })
 export class ListaEditorialComponent implements OnInit {
-    private editorialService = inject(EditorialService);
+  private editorialService = inject(EditorialService);
 
-    editoriales: Editorial[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  private cdr = inject(ChangeDetectorRef);
 
-    ngOnInit(): void {
-        this.cargarEditoriales();
-    }
+  editoriales: Editorial[] = [];
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    cargarEditoriales(): void {
-        this.isLoading = true;
-        this.errorMessage = '';
-        this.editorialService.listarEditoriales().subscribe({
-            next: (data) => {
-                this.editoriales = data;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Error al listar editoriales:', error);
-                this.errorMessage = 'No se pudieron cargar las editoriales. Por favor, inténtelo de nuevo más tarde.';
-                this.isLoading = false;
-            }
-        });
-    }
+  ngOnInit(): void {
+    this.cargarEditoriales();
+  }
 
-    eliminarEditorial(id: number): void {
-        if (confirm('¿Estás seguro de que deseas eliminar esta editorial?')) {
-            this.editorialService.eliminarEditorial(id).subscribe({
-                next: () => {
-                    this.cargarEditoriales();
-                },
-                error: (error) => {
-                    alert('Error al eliminar la editorial: ' + error.message);
-                }
-            });
+  cargarEditoriales(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.editorialService.listarEditoriales().subscribe({
+      next: (data) => {
+        this.editoriales = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al listar editoriales:', error);
+        this.errorMessage = 'No se pudieron cargar las editoriales. Por favor, inténtelo de nuevo más tarde.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  eliminarEditorial(id: number): void {
+    if (confirm('¿Estás seguro de que deseas eliminar esta editorial?')) {
+      this.editorialService.eliminarEditorial(id).subscribe({
+        next: () => {
+          this.cargarEditoriales();
+        },
+        error: (error) => {
+          alert('Error al eliminar la editorial: ' + error.message);
         }
+      });
     }
+  }
 }

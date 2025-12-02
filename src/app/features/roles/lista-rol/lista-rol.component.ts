@@ -1,14 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { RolService } from '../../../shared/services/rol.service';
 import { Rol } from '../../../shared/models/rol.model';
 
 @Component({
-    selector: 'app-lista-rol',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-lista-rol',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <div>
@@ -85,42 +85,46 @@ import { Rol } from '../../../shared/models/rol.model';
     `
 })
 export class ListaRolComponent implements OnInit {
-    private rolService = inject(RolService);
+  private rolService = inject(RolService);
 
-    roles: Rol[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  private cdr = inject(ChangeDetectorRef);
 
-    ngOnInit(): void {
-        this.cargarRoles();
-    }
+  roles: Rol[] = [];
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    cargarRoles(): void {
-        this.isLoading = true;
-        this.errorMessage = '';
-        this.rolService.listarRoles().subscribe({
-            next: (data) => {
-                this.roles = data;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Error al listar roles:', error);
-                this.errorMessage = 'No se pudieron cargar los roles. Por favor, inténtelo de nuevo más tarde.';
-                this.isLoading = false;
-            }
-        });
-    }
+  ngOnInit(): void {
+    this.cargarRoles();
+  }
 
-    eliminarRol(id: number): void {
-        if (confirm('¿Estás seguro de que deseas eliminar este rol?')) {
-            this.rolService.eliminarRol(id).subscribe({
-                next: () => {
-                    this.cargarRoles();
-                },
-                error: (error) => {
-                    alert('Error al eliminar el rol: ' + error.message);
-                }
-            });
+  cargarRoles(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.rolService.listarRoles().subscribe({
+      next: (data) => {
+        this.roles = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al listar roles:', error);
+        this.errorMessage = 'No se pudieron cargar los roles. Por favor, inténtelo de nuevo más tarde.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  eliminarRol(id: number): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este rol?')) {
+      this.rolService.eliminarRol(id).subscribe({
+        next: () => {
+          this.cargarRoles();
+        },
+        error: (error) => {
+          alert('Error al eliminar el rol: ' + error.message);
         }
+      });
     }
+  }
 }

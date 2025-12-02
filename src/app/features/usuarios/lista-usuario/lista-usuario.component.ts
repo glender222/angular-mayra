@@ -1,14 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { UsuarioService } from '../../../shared/services/usuario.service';
 import { Usuario } from '../../../shared/models/usuario.model';
 
 @Component({
-    selector: 'app-lista-usuario',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-lista-usuario',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <div>
@@ -99,42 +99,46 @@ import { Usuario } from '../../../shared/models/usuario.model';
     `
 })
 export class ListaUsuarioComponent implements OnInit {
-    private usuarioService = inject(UsuarioService);
+  private usuarioService = inject(UsuarioService);
 
-    usuarios: Usuario[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  private cdr = inject(ChangeDetectorRef);
 
-    ngOnInit(): void {
-        this.cargarUsuarios();
-    }
+  usuarios: Usuario[] = [];
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    cargarUsuarios(): void {
-        this.isLoading = true;
-        this.errorMessage = '';
-        this.usuarioService.listarUsuarios().subscribe({
-            next: (data) => {
-                this.usuarios = data;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Error al listar usuarios:', error);
-                this.errorMessage = 'No se pudieron cargar los usuarios. Por favor, inténtelo de nuevo más tarde.';
-                this.isLoading = false;
-            }
-        });
-    }
+  ngOnInit(): void {
+    this.cargarUsuarios();
+  }
 
-    eliminarUsuario(id: number): void {
-        if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-            this.usuarioService.eliminarUsuario(id).subscribe({
-                next: () => {
-                    this.cargarUsuarios();
-                },
-                error: (error) => {
-                    alert('Error al eliminar el usuario: ' + error.message);
-                }
-            });
+  cargarUsuarios(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.usuarioService.listarUsuarios().subscribe({
+      next: (data) => {
+        this.usuarios = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al listar usuarios:', error);
+        this.errorMessage = 'No se pudieron cargar los usuarios. Por favor, inténtelo de nuevo más tarde.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  eliminarUsuario(id: number): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+      this.usuarioService.eliminarUsuario(id).subscribe({
+        next: () => {
+          this.cargarUsuarios();
+        },
+        error: (error) => {
+          alert('Error al eliminar el usuario: ' + error.message);
         }
+      });
     }
+  }
 }

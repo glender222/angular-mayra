@@ -1,14 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ClienteService } from '../../../shared/services/cliente.service';
 import { Cliente } from '../../../shared/models/cliente.model';
 
 @Component({
-    selector: 'app-lista-cliente',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-lista-cliente',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <div>
@@ -97,42 +97,46 @@ import { Cliente } from '../../../shared/models/cliente.model';
     `
 })
 export class ListaClienteComponent implements OnInit {
-    private clienteService = inject(ClienteService);
+  private clienteService = inject(ClienteService);
 
-    clientes: Cliente[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  private cdr = inject(ChangeDetectorRef);
 
-    ngOnInit(): void {
-        this.cargarClientes();
-    }
+  clientes: Cliente[] = [];
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    cargarClientes(): void {
-        this.isLoading = true;
-        this.errorMessage = '';
-        this.clienteService.listarClientes().subscribe({
-            next: (data) => {
-                this.clientes = data;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Error al listar clientes:', error);
-                this.errorMessage = 'No se pudieron cargar los clientes. Por favor, inténtelo de nuevo más tarde.';
-                this.isLoading = false;
-            }
-        });
-    }
+  ngOnInit(): void {
+    this.cargarClientes();
+  }
 
-    eliminarCliente(id: number): void {
-        if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
-            this.clienteService.eliminarCliente(id).subscribe({
-                next: () => {
-                    this.cargarClientes();
-                },
-                error: (error) => {
-                    alert('Error al eliminar el cliente: ' + error.message);
-                }
-            });
+  cargarClientes(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.clienteService.listarClientes().subscribe({
+      next: (data) => {
+        this.clientes = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al listar clientes:', error);
+        this.errorMessage = 'No se pudieron cargar los clientes. Por favor, inténtelo de nuevo más tarde.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  eliminarCliente(id: number): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
+      this.clienteService.eliminarCliente(id).subscribe({
+        next: () => {
+          this.cargarClientes();
+        },
+        error: (error) => {
+          alert('Error al eliminar el cliente: ' + error.message);
         }
+      });
     }
+  }
 }

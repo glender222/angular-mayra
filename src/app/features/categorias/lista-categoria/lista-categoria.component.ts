@@ -1,14 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CategoriaService } from '../../../shared/services/categoria.service';
 import { Categoria } from '../../../shared/models/categoria.model';
 
 @Component({
-    selector: 'app-lista-categoria',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-lista-categoria',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <div>
@@ -85,42 +85,46 @@ import { Categoria } from '../../../shared/models/categoria.model';
     `
 })
 export class ListaCategoriaComponent implements OnInit {
-    private categoriaService = inject(CategoriaService);
+  private categoriaService = inject(CategoriaService);
 
-    categorias: Categoria[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  private cdr = inject(ChangeDetectorRef);
 
-    ngOnInit(): void {
-        this.cargarCategorias();
-    }
+  categorias: Categoria[] = [];
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    cargarCategorias(): void {
-        this.isLoading = true;
-        this.errorMessage = '';
-        this.categoriaService.listarCategorias().subscribe({
-            next: (data) => {
-                this.categorias = data;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Error al listar categorías:', error);
-                this.errorMessage = 'No se pudieron cargar las categorías. Por favor, inténtelo de nuevo más tarde.';
-                this.isLoading = false;
-            }
-        });
-    }
+  ngOnInit(): void {
+    this.cargarCategorias();
+  }
 
-    eliminarCategoria(id: number): void {
-        if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
-            this.categoriaService.eliminarCategoria(id).subscribe({
-                next: () => {
-                    this.cargarCategorias();
-                },
-                error: (error) => {
-                    alert('Error al eliminar la categoría: ' + error.message);
-                }
-            });
+  cargarCategorias(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.categoriaService.listarCategorias().subscribe({
+      next: (data) => {
+        this.categorias = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al listar categorías:', error);
+        this.errorMessage = 'No se pudieron cargar las categorías. Por favor, inténtelo de nuevo más tarde.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  eliminarCategoria(id: number): void {
+    if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+      this.categoriaService.eliminarCategoria(id).subscribe({
+        next: () => {
+          this.cargarCategorias();
+        },
+        error: (error) => {
+          alert('Error al eliminar la categoría: ' + error.message);
         }
+      });
     }
+  }
 }
