@@ -6,10 +6,10 @@ import { CartService } from '../../../shared/services/cart.service';
 import { Libro } from '../../../shared/models/libro.model';
 
 @Component({
-    selector: 'app-catalogo-venta',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-catalogo-venta',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
         <div>
@@ -49,7 +49,6 @@ import { Libro } from '../../../shared/models/libro.model';
           <div class="p-6 flex-1 flex flex-col">
             <div class="flex-1">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">{{ libro.titulo }}</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">{{ libro.descripcion }}</p>
               <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
                 <span>{{ libro.autor?.nombre }}</span>
                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">{{ libro.categoria?.descripcion }}</span>
@@ -74,37 +73,37 @@ import { Libro } from '../../../shared/models/libro.model';
     `
 })
 export class CatalogoVentaComponent implements OnInit {
-    private libroService = inject(LibroService);
-    public cartService = inject(CartService);
+  private libroService = inject(LibroService);
+  public cartService = inject(CartService);
 
-    libros: Libro[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  libros: Libro[] = [];
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    // Signal for cart count
-    cartCount = this.cartService.itemCount;
+  // Signal for cart count
+  cartCount = this.cartService.itemCount;
 
-    ngOnInit(): void {
-        this.cargarLibros();
-    }
+  ngOnInit(): void {
+    this.cargarLibros();
+  }
 
-    cargarLibros(): void {
-        this.isLoading = true;
-        this.errorMessage = '';
-        this.libroService.listarLibros().subscribe({
-            next: (data) => {
-                this.libros = data;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Error al listar libros:', error);
-                this.errorMessage = 'No se pudieron cargar los libros.';
-                this.isLoading = false;
-            }
-        });
-    }
+  cargarLibros(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.libroService.listarLibros().subscribe({
+      next: (data) => {
+        this.libros = data;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al listar libros:', error);
+        this.errorMessage = 'No se pudieron cargar los libros.';
+        this.isLoading = false;
+      }
+    });
+  }
 
-    addToCart(libro: Libro): void {
-        this.cartService.addToCart(libro);
-    }
+  addToCart(libro: Libro): void {
+    this.cartService.addToCart(libro);
+  }
 }
